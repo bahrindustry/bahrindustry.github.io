@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>26.12.1991</title>
+    <style>
+        /* Completely black background, no frills */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+        }
+
+        /* Both screens take full space */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease;
+            background-color: black;
+        }
+
+        /* Code entry screen */
+        #code-screen {
+            z-index: 20;
+            flex-direction: column;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Video screen - hidden by default */
+        #video-screen {
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            background-color: black;
+        }
+
+        .input-area {
+            text-align: center;
+        }
+
+        .prompt {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            color: #aaa;
+            text-shadow: 0 0 5px rgba(100, 100, 100, 0.7);
+        }
+
+        #code-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #444;
+            color: #c0c0c0;
+            font-family: 'Courier New', monospace;
+            font-size: 2.5rem;
+            width: 200px;
+            text-align: center;
+            letter-spacing: 10px;
+            padding: 10px 5px;
+            outline: none;
+            caret-color: #666;
+        }
+
+        #code-input::placeholder {
+            color: #222;
+            letter-spacing: 2px;
+            font-size: 1.2rem;
+        }
+
+        #error-message {
+            color: #330000;
+            margin-top: 15px;
+            font-size: 1rem;
+            height: 20px;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            box-shadow: 0 0 200px 100px rgba(0, 0, 0, 0.9);
+            border-radius: 2px;
+        }
+
+        .timestamp {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            color: rgba(150, 150, 150, 0.5);
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 5px 12px;
+            border-radius: 2px;
+            z-index: 30;
+            pointer-events: none;
+            border: 1px solid rgba(80, 80, 80, 0.3);
+            backdrop-filter: blur(1px);
+            text-shadow: 0 0 3px black;
+        }
+
+        /* Class for hiding/showing screens */
+        .hidden {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        .visible {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Code entry screen -->
+    <div id="code-screen" class="screen visible">
+        <div class="input-area">
+            <div class="prompt">[ ENTER CODE ]</div>
+            <input type="text" id="code-input" maxlength="6" placeholder="______" autofocus>
+            <div id="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Video screen -->
+    <div id="video-screen" class="screen">
+        <div class="video-container">
+            <video 
+                id="horror-video"
+                src="https://github.com/bahrindustry/bahrindustry.github.io/raw/refs/heads/main/assets/video_1.mp4" 
+                loop
+                playsinline 
+                controlslist="nodownload nofullscreen noremoteplayback"
+                disablepictureinpicture
+                style="pointer-events: none;"
+            >
+                Your browser does not support video.
+            </video>
+            <div class="timestamp">26.12.1991 03:26</div>
+        </div>
+    </div>
+
+    <script>
+        const codeScreen = document.getElementById('code-screen');
+        const videoScreen = document.getElementById('video-screen');
+        const codeInput = document.getElementById('code-input');
+        const errorMsg = document.getElementById('error-message');
+        const video = document.getElementById('horror-video');
+
+        const correctCode = '261991';
+
+        // Function to attempt video playback with sound
+        function playVideoWithSound() {
+            video.muted = false;
+            video.volume = 0;
+
+            let playPromise = video.play();
+
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    video.volume = 0.8;
+                }).catch(error => {
+                    console.log("Autoplay with sound blocked:", error);
+                    
+                    function enableAudioOnInteraction() {
+                        video.muted = false;
+                        video.volume = 0.8;
+                        if (video.paused) {
+                            video.play().catch(e => console.log("Failed to play video"));
+                        }
+                        document.removeEventListener('click', enableAudioOnInteraction);
+                        document.removeEventListener('touchstart', enableAudioOnInteraction);
+                    }
+                    
+                    document.addEventListener('click', enableAudioOnInteraction);
+                    document.addEventListener('touchstart', enableAudioOnInteraction);
+                });
+            }
+        }
+
+        // Handle code input
+        codeInput.addEventListener('input', function(e) {
+            let val = e.target.value.replace(/\D/g, '');
+            e.target.value = val;
+
+            // If code matches
+            if (val === correctCode) {
+                errorMsg.style.color = '#003300';
+                errorMsg.textContent = '...';
+                
+                // Switch screens
+                codeScreen.classList.remove('visible');
+                codeScreen.classList.add('hidden');
+                videoScreen.classList.remove('hidden');
+                videoScreen.classList.add('visible');
+                
+                // Load and play video
+                video.load();
+                playVideoWithSound();
+                
+                e.target.value = '';
+            } 
+            // If 6 digits entered but wrong code
+            else if (val.length === 6 && val !== correctCode) {
+                errorMsg.style.color = '#440000';
+                errorMsg.textContent = '[ ACCESS DENIED ]';
+                
+                setTimeout(() => {
+                    codeInput.value = '';
+                    errorMsg.textContent = '';
+                }, 800);
+            } 
+            else {
+                errorMsg.textContent = '';
+            }
+        });
+
+        // Prevent context menu on video
+        video.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Prevent keyboard controls on video
+        video.addEventListener('keydown', (e) => {
+            e.preventDefault();
+            return false;
+        });
+
+        // Prevent pause
+        video.addEventListener('pause', (e) => {
+            video.play().catch(() => {});
+        });
+
+        video.disableRemotePlayback = true;
+    </script>
+</body>
+</html>
