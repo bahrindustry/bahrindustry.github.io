@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bahr Industry // кот</title>
+    <style>
+        /* Полная темнота, только необходимое */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            color: #bbb;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        /* Логотип/название */
+        .logo {
+            font-size: 3.5rem;
+            letter-spacing: 8px;
+            color: #444;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            font-weight: normal;
+            border-bottom: 1px solid #222;
+            padding-bottom: 15px;
+            text-shadow: 0 0 3px #111;
+        }
+
+        /* Странная инструкция */
+        .instruction {
+            font-size: 1.4rem;
+            color: #666;
+            margin: 30px 0 40px 0;
+            font-style: italic;
+            letter-spacing: 1px;
+            border-left: 3px solid #333;
+            padding-left: 15px;
+            text-align: left;
+        }
+
+        /* Мини-клавиатура из букв B */
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            padding: 15px;
+            background-color: #0a0a0a;
+            border-radius: 4px;
+            border: 1px solid #222;
+        }
+
+        /* Клавиша B */
+        .b-key {
+            background-color: #111;
+            border: 1px solid #333;
+            color: #555;
+            font-size: 2rem;
+            font-weight: bold;
+            padding: 15px 0;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            user-select: none;
+            font-family: 'Courier New', monospace;
+            border-radius: 3px;
+            box-shadow: 0 2px 0 #0a0a0a;
+        }
+
+        .b-key:hover {
+            background-color: #1a1a1a;
+            border-color: #444;
+            color: #777;
+        }
+
+        .b-key:active {
+            transform: translateY(2px);
+            box-shadow: none;
+            background-color: #222;
+        }
+
+        /* Счётчик нажатий (скрытый, но занимает место) */
+        .counter-area {
+            margin-top: 30px;
+            font-size: 1rem;
+            color: #222;
+            letter-spacing: 2px;
+            height: 20px;
+        }
+
+        /* Сообщение о коде (появляется) */
+        .code-message {
+            margin-top: 20px;
+            font-size: 1.8rem;
+            color: #2a2a2a;
+            transition: color 0.5s;
+            word-break: break-all;
+        }
+
+        .code-message.revealed {
+            color: #5a5a5a;
+            text-shadow: 0 0 8px #2a4a2a;
+        }
+
+        /* Эффект "нажато" */
+        .pressed-effect {
+            background-color: #222 !important;
+            border-color: #555 !important;
+            color: #888 !important;
+        }
+
+        /* Скрытый элемент */
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Bahr Industry заголовок -->
+        <div class="logo">BAHR INDUSTRY</div>
+        
+        <!-- Странная инструкция -->
+        <div class="instruction">Возьми этого кота.</div>
+        
+        <!-- Клавиатура из 12 букв B (6x2 для ровного счёта) -->
+        <div class="keyboard" id="b-keyboard">
+            <!-- Генерируем 12 клавиш через JS позже, но для надёжности пропишем вручную -->
+            <!-- Это будет заполнено скриптом -->
+        </div>
+        
+        <!-- Счётчик нажатий (будет обновляться) -->
+        <div class="counter-area" id="click-counter">...</div>
+        
+        <!-- Здесь появится код -->
+        <div class="code-message" id="code-display"></div>
+    </div>
+
+    <script>
+        // Конфигурация
+        const TARGET_CLICKS = 12;
+        const SECRET_CODE = "245277";
+        
+        // Элементы
+        const keyboardEl = document.getElementById('b-keyboard');
+        const counterEl = document.getElementById('click-counter');
+        const codeDisplay = document.getElementById('code-display');
+        
+        // Состояние
+        let clickCount = 0;
+        
+        // Создаём 12 клавиш с буквой B
+        function createKeyboard() {
+            keyboardEl.innerHTML = ''; // Очищаем
+            
+            for (let i = 0; i < 12; i++) {
+                const key = document.createElement('div');
+                key.className = 'b-key';
+                key.textContent = 'B';
+                key.dataset.index = i;
+                
+                // Добавляем обработчик
+                key.addEventListener('click', function(e) {
+                    handleKeyClick(e.target);
+                });
+                
+                keyboardEl.appendChild(key);
+            }
+        }
+        
+        // Обработчик клика по клавише B
+        function handleKeyClick(keyElement) {
+            // Визуальный эффект
+            keyElement.classList.add('pressed-effect');
+            setTimeout(() => {
+                keyElement.classList.remove('pressed-effect');
+            }, 150);
+            
+            // Увеличиваем счётчик
+            clickCount++;
+            
+            // Обновляем счётчик (минималистично)
+            counterEl.textContent = '[' + '#'.repeat(clickCount) + ']';
+            
+            // Если достигли цели
+            if (clickCount === TARGET_CLICKS) {
+                // Показываем код
+                codeDisplay.textContent = SECRET_CODE;
+                codeDisplay.classList.add('revealed');
+                
+                // Деактивируем клавиши (чтобы нельзя было нажать лишний раз)
+                document.querySelectorAll('.b-key').forEach(key => {
+                    key.style.pointerEvents = 'none';
+                    key.style.opacity = '0.5';
+                });
+                
+                // Финальное сообщение в счётчике
+                counterEl.textContent = '[ACCESS]';
+            }
+            
+            // Если перебор (на случай если мы не заблокировали клавиши)
+            if (clickCount > TARGET_CLICKS) {
+                // Сбрасываем или просто игнорируем? Лучше оставить как есть,
+                // но для демо - блокируем
+                document.querySelectorAll('.b-key').forEach(key => {
+                    key.style.pointerEvents = 'none';
+                    key.style.opacity = '0.3';
+                });
+                counterEl.textContent = '[ERROR]';
+            }
+        }
+        
+        // Инициализация
+        createKeyboard();
+        
+        // Добавим немного атмосферы: случайное мерцание некоторых клавиш (необязательно)
+        setInterval(() => {
+            if (clickCount < TARGET_CLICKS) {
+                const keys = document.querySelectorAll('.b-key');
+                const randomIndex = Math.floor(Math.random() * keys.length);
+                keys[randomIndex].style.opacity = '0.7';
+                setTimeout(() => {
+                    keys[randomIndex].style.opacity = '1';
+                }, 100);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
